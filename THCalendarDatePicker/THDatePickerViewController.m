@@ -32,6 +32,8 @@
     NSMutableArray * _selectedDates;
     NSMutableArray * _selectedDateViews;
     THDatePickerSelectionType _selectionType;
+    NSDate * _availableSelectionFromDate;
+    NSDate * _availableSelectionToDate;
 }
 @property (nonatomic, strong) NSDate * firstOfCurrentMonth;
 @property (nonatomic, strong) THDateDay * currentDay;
@@ -81,6 +83,8 @@
         _clearAsToday = NO;
         _daysInFuture = NO;
         _daysInHistory = NO;
+        _availableSelectionFromDate = NULL;
+        _availableSelectionToDate = NULL;
         _historyFutureBasedOnInternal = NO;
         _autoCloseCancelDelay = 1.0;
         _dateTimeZone = [NSTimeZone defaultTimeZone];
@@ -154,6 +158,17 @@
     [self setDaysInFutureSelection:[intToDate daysFromDate:[self.internalDate dateWithOutTime]]];
     
     [self setHistoryFutureBasedOnInternal:YES];
+    _availableSelectionFromDate = NULL;
+    _availableSelectionToDate = NULL;
+}
+
+- (void)setNoInternalDateRangeFrom:(NSDate *)fromDate toDate:(NSDate *)toDate {
+    [self setDaysInFutureSelection:0];
+    [self setDaysInHistorySelection:0];
+    [self setHistoryFutureBasedOnInternal:NO];
+    
+    _availableSelectionFromDate = [fromDate dateWithOutTime];
+    _availableSelectionToDate = [toDate dateWithOutTime];
 }
 
 - (void)setDisableYearSwitch:(BOOL)disableYearSwitch {
@@ -353,7 +368,7 @@
         }
         
         [day setLightText:![self dateInCurrentMonth:date]];
-        [day setEnabled:![self dateInFutureAndShouldBeDisabled:date]];
+        [day setEnabled:![self dateShoulBeDisabled:date]];
         [day indicateDayHasItems:(_dateHasItemsCallback && _dateHasItemsCallback(date))];
         
         NSDateComponents *comps = [_calendar components:NSCalendarUnitDay fromDate:date];
@@ -732,6 +747,24 @@
 }
 
 #pragma mark - Date Utils
+
+- (BOOL)dateShoulBeDisabled:(NSDate *)dateToCompare {
+    if (_availableSelectionFromDate && _availableSelectionToDate)
+    {
+        if ([_availableSelectionFromDate compare:dateToCompare] != NSOrderedDescending && [_availableSelectionToDate compare:dateToCompare] != NSOrderedAscending)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else
+    {
+        return [self dateInFutureAndShouldBeDisabled: dateToCompare];
+    }
+}
 
 - (BOOL)dateInFutureAndShouldBeDisabled:(NSDate *)dateToCompare {
     NSDate *currentDate = [(self.isHistoryFutureBasedOnInternal ?

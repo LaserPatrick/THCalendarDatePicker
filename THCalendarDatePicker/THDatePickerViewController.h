@@ -65,7 +65,6 @@ typedef NS_ENUM(NSInteger, THDatePickerSelectionType) {
 - (void)setAllowClearDate:(BOOL)allow;
 
 /*! Enable Multi Day Selection
- * \param allow selection of multiple days
  */
 - (void)setSelectionType:(THDatePickerSelectionType)type;
 
@@ -105,7 +104,7 @@ typedef NS_ENUM(NSInteger, THDatePickerSelectionType) {
 - (void)setDaysInFutureSelection:(NSUInteger)daysInFuture;
 
 /*! Set the timeZone by name to be used. Valid timezones can be retrieved using [NSTimeZone knownTimeZoneNames]
- * \param the name of the timezone to be used
+ * \param name          the name of the timezone to be used
  * \return successful?
  */
 - (BOOL)setDateTimeZoneWithName:(NSString *)name;
@@ -120,6 +119,8 @@ typedef NS_ENUM(NSInteger, THDatePickerSelectionType) {
  * \param toDate        range to
  */
 - (void)setDateRangeFrom:(NSDate *)fromDate toDate:(NSDate *)toDate;
+
+- (void)setNoInternalDateRangeFrom:(NSDate *)fromDate toDate:(NSDate *)toDate;
 
 /*! Set calendar title
  * \param dateTitle     calendar title
